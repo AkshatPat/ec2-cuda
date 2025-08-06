@@ -82,30 +82,35 @@ async function runColmapPipeline() {
    console.log('🚀 Running COLMAP pipeline...');
  
   // Step 1: Feature Extraction
-
+  console.log("step- 1 Running Feature Extraction");
+  
    await execPromise(`colmap feature_extractor --database_path "${databasePath}" --image_path "${imagePath}"`);
  
   // Step 2: Matching
-
+   console.log("step- 2 Running Feature Matching");
    await execPromise(`colmap sequential_matcher --database_path "${databasePath}"`);
- 
-  // Step 3: Sparse Reconstruction (Mapping)
-
+   
+   // Step 3: Sparse Reconstruction (Mapping)
+   console.log("step- 3 Running Sparse Reconstruction (Mapping)");
+   
    await execPromise(`colmap mapper --database_path "${databasePath}" --image_path "${imagePath}" --output_path "${sparseDir}"`);
- 
-  // Step 4: Image Undistortion (Required for dense)
-
+   
+   // Step 4: Image Undistortion (Required for dense)
+   console.log("step- 4 Running Image Undistortion (Required for dense)");
+   
    const denseDir = path.join(colmapDir, 'dense');
-
+   
    if (!fs.existsSync(denseDir)) fs.mkdirSync(denseDir);
- 
-  await execPromise(`colmap image_undistorter --image_path "${imagePath}" --input_path "${sparseDir}/0" --output_path "${denseDir}" --output_type COLMAP`);
- 
-  // Step 5: Dense Stereo
-
+   
+   await execPromise(`colmap image_undistorter --image_path "${imagePath}" --input_path "${sparseDir}/0" --output_path "${denseDir}" --output_type COLMAP`);
+   
+   // Step 5: Dense Stereo
+   console.log("step- 5 Running Dense Stereo");
+   
    await execPromise(`colmap patch_match_stereo --workspace_path "${denseDir}" --workspace_format COLMAP --PatchMatchStereo.geom_consistency true`);
- 
-  // Step 6: Dense Fusion → creates a dense point cloud
+   
+   // Step 6: Dense Fusion → creates a dense point cloud
+   console.log("step- 6 Running Dense Fusion → creates a dense point cloud");
 
    await execPromise(`colmap stereo_fusion --workspace_path "${denseDir}" --workspace_format COLMAP --input_type geometric --output_path "${plyOutputDir}"`);
  
