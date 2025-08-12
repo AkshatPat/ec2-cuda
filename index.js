@@ -15,7 +15,7 @@ const imagePath = path.resolve(frameDir);
 const sparseDir = path.join(colmapDir, 'sparse');
 const denseDir = path.join(colmapDir, 'dense');
 const plyOutputPath = path.join(colmapDir, 'model.ply');
-const meshPlyPath = path.join(denseDir, 'meshed-textured.ply');
+const meshPlyPath = path.join(denseDir, 'meshed-poisson.ply');
 
 const plyToObjPath = path.join(colmapDir, 'model.obj');
 
@@ -164,13 +164,10 @@ async function runColmapPipeline() {
 
   console.log('✅ Dense reconstruction complete → model.ply created');
   // Step 7: Mesh Reconstruction
-  await execPromise(`colmap poisson_mesher --input_path "${plyOutputPath}" --output_path "${path.join(denseDir, 'meshed-poisson.ply')}"`);
-
+  // await execPromise(`colmap poisson_mesher --input_path "${plyOutputPath}" --output_path "${path.join(denseDir, 'meshed-poisson.ply')}"`);
+  await execPromise(`colmap poisson_mesher --input_path "${plyOutputPath}" --output_path "${meshPlyPath}"`);
   console.log('✅ Mesh reconstruction complete → meshed-poisson.ply created');
-  // Step 8: Mesh Texturing
-  await execPromise(`colmap texture --input_path "${denseDir}" --output_path "${path.join(denseDir, 'meshed-textured.obj')}"`);
 
-  console.log('Dense + textured mesh created →', meshPlyPath);
 }
 
 // RUN ENTIRE PIPELINE
