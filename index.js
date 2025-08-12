@@ -168,7 +168,7 @@ async function runColmapPipeline() {
 
   console.log('✅ Mesh reconstruction complete → meshed-poisson.ply created');
   // Step 8: Mesh Texturing
-  await execPromise(`colmap texture_mesher --input_path "${path.join(denseDir, 'meshed-poisson.ply')}" --output_path "${meshPlyPath}"`);
+  await execPromise(`colmap texture --input_path "${denseDir}" --output_path "${path.join(denseDir, 'meshed-textured.obj')}"`);
 
   console.log('Dense + textured mesh created →', meshPlyPath);
 }
