@@ -138,32 +138,39 @@ async function runColmapPipeline() {
 
   // Remove old database
   if (fs.existsSync(databasePath)) fs.unlinkSync(databasePath);
-
+  console.log("Step 1: Feature Extraction");
   // Step 1: Feature Extraction
   await execPromise(`colmap feature_extractor --database_path "${databasePath}" --image_path "${imagePath}"`);
 
+  console.log("Step 2: Matching");
   // Step 2: Matching
   await execPromise(`colmap sequential_matcher --database_path "${databasePath}"`);
 
+  console.log("Step 3: Sparse Reconstruction");
   // Step 3: Sparse Reconstruction
   await execPromise(`colmap mapper --database_path "${databasePath}" --image_path "${imagePath}" --output_path "${sparseDir}"`);
 
+  console.log("Step 4: Convert model to PLY");
   // Step 4: Image Undistortion
   await execPromise(`colmap image_undistorter --image_path "${imagePath}" --input_path "${sparseDir}/0" --output_path "${denseDir}" --output_type COLMAP`);
 
+  console.log("Step 5: Dense Stereo");
   // Step 5: Dense Stereo
   await execPromise(`colmap patch_match_stereo --workspace_path "${denseDir}" --workspace_format COLMAP --PatchMatchStereo.geom_consistency true`);
 
+  console.log("Step 6: Dense Fusion");
   // Step 6: Dense Fusion (dense point cloud)
   await execPromise(`colmap stereo_fusion --workspace_path "${denseDir}" --workspace_format COLMAP --input_type geometric --output_path "${plyOutputPath}"`);
 
+  console.log('✅ Dense reconstruction complete → model.ply created');
   // Step 7: Mesh Reconstruction
   await execPromise(`colmap poisson_mesher --input_path "${plyOutputPath}" --output_path "${path.join(denseDir, 'meshed-poisson.ply')}"`);
 
+  console.log('✅ Mesh reconstruction complete → meshed-poisson.ply created');
   // Step 8: Mesh Texturing
   await execPromise(`colmap texture_mesher --input_path "${path.join(denseDir, 'meshed-poisson.ply')}" --output_path "${meshPlyPath}"`);
 
-  console.log('✅ Dense + textured mesh created →', meshPlyPath);
+  console.log('Dense + textured mesh created →', meshPlyPath);
 }
 
 // RUN ENTIRE PIPELINE
